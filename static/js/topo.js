@@ -1,5 +1,5 @@
-var w = 400,
-    h = 400,
+var w = window.innerWidth,
+    h = window.innerHeight,
     fill = d3.scale.category20();
 
 var svg = d3.select("#chart")
@@ -9,8 +9,8 @@ var svg = d3.select("#chart")
 
 d3.json("/static/js/topo.json", function(json) {
   var topo = d3.layout.force()
-  .charge(-300)
-  .linkDistance(100)
+  .charge(-1000)
+  .linkDistance(300)
   .nodes(json.nodes)
   .links(json.links)
   .size([w, h])
@@ -30,11 +30,21 @@ var node = svg.append("svg:g").selectAll("circle.node")
   .data(json.nodes)
   .enter().append("svg:circle")
   .attr("class", "node")
-  .attr("r", 15)
+  .attr("r", 20)
   .style("fill", function(d) { return fill(d.group); })
   .attr("cx", function(d) { return d.x; })
   .attr("cy", function(d) { return d.y; })
+  .on("mouseover", function(){return tooltip.style("visibility", "visible");})
+  .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
+  .on("mouseout", function(){return tooltip.style("visibility", "hidden");})
   .call(topo.drag);
+
+var tooltip = d3.select("body")
+	.append("div")
+	.style("position", "absolute")
+	.style("z-index", "10")
+	.style("visibility", "hidden")
+	.text("a simple tooltip");
 
 var text = svg.append("svg:g").selectAll("g")
   .data(topo.nodes())
